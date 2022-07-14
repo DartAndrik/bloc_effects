@@ -10,8 +10,12 @@ For general information about developing packages, see the Dart guide for
 and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
+<p align="center">
+<a href="https://pub.dev/packages/bloc_effects"><img src="https://img.shields.io/pub/v/bloc_effects.svg" alt="Pub"></a>
+<a href="https://github.com/passsy/dart-lint"><img src="https://img.shields.io/badge/style-lint-40c4ff.svg" alt="style: lint"></a>
+</p>
 
-Cubit and Bloc abstractions and Flutter Widget that make it easy to add UI Effects to the BLoC state
+The abstractions on Cubit and Bloc and Flutter Widget that make it easy to add UI Effects to the BLoC state
 management using [package:bloc](https://pub.dev/packages/bloc).
 
 ## Usage
