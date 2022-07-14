@@ -12,6 +12,7 @@ and the Flutter guide for
 -->
 <p align="center">
 <a href="https://pub.dev/packages/bloc_effects"><img src="https://img.shields.io/pub/v/bloc_effects.svg" alt="Pub"></a>
+<a href="https://codecov.io/gh/DartAndrik/bloc_effects"><img src="https://codecov.io/gh/DartAndrik/bloc_effects/branch/master/graph/badge.svg" alt="codecov"></a>
 <a href="https://github.com/passsy/dart-lint"><img src="https://img.shields.io/badge/style-lint-40c4ff.svg" alt="style: lint"></a>
 </p>
 
@@ -41,7 +42,7 @@ class ShowBottomSheet implements UiEffect {
 
   void increment() => emit(state + 1);
 
-  void onButtonPress() => useEffect(const ShowBottomSheet());
+  void onButtonPressed() => useEffect(const ShowBottomSheet());
 }
  ```
 
@@ -90,7 +91,7 @@ class CounterPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.upload),
-        onPressed: () => context.read<CounterCubit>().onButtonPress(),
+        onPressed: () => context.read<CounterCubit>().onButtonPressed(),
       ),
     );
   }
