@@ -1,6 +1,6 @@
 name: bloc_effects
 description: Cubit and Bloc abstractions and Flutter Widget that make it easy to add UI Effects to the BLoC state management.
-version: 0.1.0-dev.1
+version: 0.1.0
 repository: https://github.com/DartAndrik/bloc_effects
 issue_tracker: https://github.com/DartAndrik/bloc_effects/issues
 
