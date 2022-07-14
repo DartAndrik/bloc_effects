@@ -6,7 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Signature for the `listener` function which takes the `BuildContext` along
 /// with the `effect` and `state`. It is responsible for executing in response
-/// to new `effect` emitted.
+/// to new `effect` emitted. The `state` is the snapshot of state
+/// on the moment of `effect` emitting.
 typedef EffectWidgetListener<Effect, State> = void Function(
   BuildContext,
   Effect,
@@ -28,9 +29,10 @@ typedef EffectWidgetListener<Effect, State> = void Function(
 /// ```dart
 /// BlocEffectListener<BlocA, BlocEffect, BlocAState>(
 ///   listener: (context, effect, state) {
-///      // do stuff here based on BlocEffect and BlocA's state
+///      // do stuff here based on BlocEffect and BlocA's state snapshot
+///      // on the moment of effect emitting
 ///   },
-///   child: Container(),
+///   child: const SizedBox(),
 /// )
 /// ```
 /// Only specify the [effector] if you wish to provide a [effector] that is
@@ -40,9 +42,10 @@ typedef EffectWidgetListener<Effect, State> = void Function(
 /// BlocEffectListener<BlocA, BlocEffect, BlocAState>(
 ///   effector: blocA,
 ///   listener: (context, effect, state) {
-///     // do stuff here based on BlocEffect and BlocA's state
+///     // do stuff here based on BlocEffect and BlocA's state snapshot
+///     // on the moment of effect emitting
 ///   },
-///   child: Container(),
+///   child: const SizedBox(),
 /// )
 /// ```
 /// {@endtemplate}
@@ -113,19 +116,6 @@ class _BlocEffectListenerState<B extends Effector<S, E>, E, S>
       if (_subscription != null) {
         _unsubscribe();
         _effector = currentEffector;
-      }
-      _subscribe();
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final effector = widget.effector ?? context.read<B>();
-    if (_effector != effector) {
-      if (_subscription != null) {
-        _unsubscribe();
-        _effector = effector;
       }
       _subscribe();
     }

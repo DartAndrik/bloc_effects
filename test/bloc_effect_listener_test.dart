@@ -3,39 +3,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-abstract class DemoEffect {}
+abstract class TestEffect {}
 
-class ShowSnackBar implements DemoEffect {
+class ShowSnackBar implements TestEffect {
   const ShowSnackBar();
 }
 
-class DemoCubit extends CubitWithEffects<int, DemoEffect> {
-  DemoCubit({int value = 0}) : super(value);
+abstract class TestEvent {}
+
+class ButtonPressed implements TestEvent {
+  const ButtonPressed();
+}
+
+class TestCubit extends CubitWithEffects<int, TestEffect> {
+  TestCubit({int value = 0}) : super(value);
 
   void showSnackBar() => useEffect(const ShowSnackBar());
+
+  void increment() {
+    emit(state + 1);
+  }
+}
+
+class TestBloc extends BlocWithEffects<TestEvent, int, TestEffect> {
+  TestBloc({int value = 0}) : super(value) {
+    on<ButtonPressed>(_onButtonPressed);
+  }
+
+  void _onButtonPressed(ButtonPressed event, Emitter<int> emit) =>
+      useEffect(const ShowSnackBar());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key, this.onListenerCalled}) : super(key: key);
 
-  final EffectWidgetListener<DemoEffect, int>? onListenerCalled;
+  final EffectWidgetListener<TestEffect, int>? onListenerCalled;
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  late DemoCubit _demoCubit;
+  late TestCubit _testCubit;
 
   @override
   void initState() {
     super.initState();
-    _demoCubit = DemoCubit();
+    _testCubit = TestCubit();
   }
 
   @override
   void dispose() {
-    _demoCubit.close();
+    _testCubit.close();
     super.dispose();
   }
 
@@ -43,8 +62,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: BlocEffectListener<DemoCubit, DemoEffect, int>(
-          effector: _demoCubit,
+        body: BlocEffectListener<TestCubit, TestEffect, int>(
+          effector: _testCubit,
           listener: (context, effect, state) {
             widget.onListenerCalled?.call(context, effect, state);
           },
@@ -54,20 +73,20 @@ class _MyAppState extends State<MyApp> {
                 key: const Key('cubit_listener_reset_button'),
                 child: const SizedBox(),
                 onPressed: () {
-                  setState(() => _demoCubit = DemoCubit(value: 2));
+                  setState(() => _testCubit = TestCubit(value: 2));
                 },
               ),
               ElevatedButton(
                 key: const Key('cubit_listener_noop_button'),
                 child: const SizedBox(),
                 onPressed: () {
-                  setState(() => _demoCubit = _demoCubit);
+                  setState(() => _testCubit = _testCubit);
                 },
               ),
               ElevatedButton(
                 key: const Key('cubit_listener_show_snack_bar_button'),
                 child: const SizedBox(),
-                onPressed: () => _demoCubit.showSnackBar(),
+                onPressed: () => _testCubit.showSnackBar(),
               ),
             ],
           ),
@@ -81,10 +100,10 @@ void main() {
   group('BlocEffectListener', () {
     testWidgets('renders child properly', (tester) async {
       const targetKey = Key('cubit_listener_container');
-      final demoCubit = DemoCubit();
+      final testCubit = TestCubit();
       await tester.pumpWidget(
-        BlocEffectListener<DemoCubit, DemoEffect, int>(
-          effector: demoCubit,
+        BlocEffectListener<TestCubit, TestEffect, int>(
+          effector: testCubit,
           listener: (_, __, ___) {},
           child: const SizedBox(key: targetKey),
         ),
@@ -92,40 +111,60 @@ void main() {
       expect(find.byKey(targetKey), findsOneWidget);
     });
 
-    testWidgets('calls listener on single effect used', (tester) async {
-      final demoCubit = DemoCubit();
-      final effects = <DemoEffect>[];
+    testWidgets('calls listener on single effect used from TestCubit',
+        (tester) async {
+      final testCubit = TestCubit();
+      final effects = <TestEffect>[];
       const expectedEffects = [ShowSnackBar()];
       await tester.pumpWidget(
-        BlocEffectListener<DemoCubit, DemoEffect, int>(
-          effector: demoCubit,
+        BlocEffectListener<TestCubit, TestEffect, int>(
+          effector: testCubit,
           listener: (_, effect, __) {
             effects.add(effect);
           },
           child: const SizedBox(),
         ),
       );
-      demoCubit.showSnackBar();
+      testCubit.showSnackBar();
+      await tester.pump();
+      expect(effects, expectedEffects);
+    });
+
+    testWidgets('calls listener on single effect used from TestBloc',
+        (tester) async {
+      final testBloc = TestBloc();
+      final effects = <TestEffect>[];
+      const expectedEffects = [ShowSnackBar()];
+      await tester.pumpWidget(
+        BlocEffectListener<TestBloc, TestEffect, int>(
+          effector: testBloc,
+          listener: (_, effect, __) {
+            effects.add(effect);
+          },
+          child: const SizedBox(),
+        ),
+      );
+      testBloc.add(const ButtonPressed());
       await tester.pump();
       expect(effects, expectedEffects);
     });
 
     testWidgets('calls listener on multiple effects used', (tester) async {
-      final demoCubit = DemoCubit();
-      final effects = <DemoEffect>[];
+      final testCubit = TestCubit();
+      final effects = <TestEffect>[];
       const expectedEffects = [ShowSnackBar(), ShowSnackBar()];
       await tester.pumpWidget(
-        BlocEffectListener<DemoCubit, DemoEffect, int>(
-          effector: demoCubit,
+        BlocEffectListener<TestCubit, TestEffect, int>(
+          effector: testCubit,
           listener: (_, effect, __) {
             effects.add(effect);
           },
           child: const SizedBox(),
         ),
       );
-      demoCubit.showSnackBar();
+      testCubit.showSnackBar();
       await tester.pump();
-      demoCubit.showSnackBar();
+      testCubit.showSnackBar();
       await tester.pump();
       expect(effects, expectedEffects);
     });
@@ -134,7 +173,7 @@ void main() {
         'updates when the cubit is changed at runtime to a different cubit '
         'and unsubscribes from old cubit', (tester) async {
       var listenerCallCount = 0;
-      DemoEffect? latestEffect;
+      TestEffect? latestEffect;
       final showSnackBarFinder = find.byKey(
         const Key('cubit_listener_show_snack_bar_button'),
       );
@@ -170,7 +209,7 @@ void main() {
         'does not update when the cubit is changed at runtime to same cubit '
         'and stays subscribed to current cubit', (tester) async {
       var listenerCallCount = 0;
-      DemoEffect? latestEffect;
+      TestEffect? latestEffect;
       final showSnackBarFinder = find.byKey(
         const Key('cubit_listener_show_snack_bar_button'),
       );
@@ -202,18 +241,61 @@ void main() {
       expect(latestEffect, const ShowSnackBar());
     });
 
+    testWidgets('calls listener with correct state', (tester) async {
+      final states = <int>[];
+      final effects = <TestEffect>[];
+      final testCubit = TestCubit();
+      await tester.pumpWidget(
+        BlocEffectListener<TestCubit, TestEffect, int>(
+          effector: testCubit,
+          listener: (_, effect, state) {
+            effects.add(effect);
+            states.add(state);
+          },
+          child: const SizedBox(),
+        ),
+      );
+      testCubit.increment();
+      await tester.pump();
+
+      testCubit.showSnackBar();
+      await tester.pump();
+
+      testCubit.increment();
+      await tester.pump();
+
+      testCubit.showSnackBar();
+      await tester.pump();
+
+      testCubit.increment();
+      await tester.pump();
+
+      testCubit.showSnackBar();
+      await tester.pump();
+
+      expect(states, [1, 2, 3]);
+      expect(
+        effects,
+        [
+          const ShowSnackBar(),
+          const ShowSnackBar(),
+          const ShowSnackBar(),
+        ],
+      );
+    });
+
     testWidgets(
         'infers the cubit from the context if the cubit is not provided',
         (tester) async {
-      DemoEffect? latestEffect;
+      TestEffect? latestEffect;
       var listenCallCount = 0;
-      final effects = <DemoEffect>[];
-      final demoCubit = DemoCubit();
+      final effects = <TestEffect>[];
+      final testCubit = TestCubit();
       const expectedEffects = [ShowSnackBar()];
       await tester.pumpWidget(
         BlocProvider.value(
-          value: demoCubit,
-          child: BlocEffectListener<DemoCubit, DemoEffect, int>(
+          value: testCubit,
+          child: BlocEffectListener<TestCubit, TestEffect, int>(
             listener: (context, effect, __) {
               listenCallCount++;
               latestEffect = effect;
@@ -223,7 +305,7 @@ void main() {
           ),
         ),
       );
-      demoCubit.showSnackBar();
+      testCubit.showSnackBar();
       await tester.pump();
 
       expect(effects, expectedEffects);
@@ -234,17 +316,17 @@ void main() {
     testWidgets(
         'updates subscription '
         'when provided bloc is changed', (tester) async {
-      final firstDemoCubit = DemoCubit(value: 1);
-      final secondDemoCubit = DemoCubit(value: 100);
+      final firstTestCubit = TestCubit(value: 1);
+      final secondTestCubit = TestCubit(value: 100);
 
       final states = <int>[];
       const expectedStates = [1, 100];
 
       await tester.pumpWidget(
         BlocProvider.value(
-          value: firstDemoCubit,
-          child: BlocEffectListener<DemoCubit, DemoEffect, int>(
-            effector: firstDemoCubit,
+          value: firstTestCubit,
+          child: BlocEffectListener<TestCubit, TestEffect, int>(
+            effector: firstTestCubit,
             listener: (_, __, state) {
               states.add(state);
             },
@@ -253,13 +335,13 @@ void main() {
         ),
       );
 
-      firstDemoCubit.showSnackBar();
+      firstTestCubit.showSnackBar();
 
       await tester.pumpWidget(
         BlocProvider.value(
-          value: secondDemoCubit,
-          child: BlocEffectListener<DemoCubit, DemoEffect, int>(
-            effector: secondDemoCubit,
+          value: secondTestCubit,
+          child: BlocEffectListener<TestCubit, TestEffect, int>(
+            effector: secondTestCubit,
             listener: (_, __, state) {
               states.add(state);
             },
@@ -268,9 +350,9 @@ void main() {
         ),
       );
 
-      secondDemoCubit.showSnackBar();
+      secondTestCubit.showSnackBar();
       await tester.pump();
-      firstDemoCubit.showSnackBar();
+      firstTestCubit.showSnackBar();
       await tester.pump();
 
       expect(states, expectedStates);

@@ -14,7 +14,7 @@ class ShowBottomSheet implements DemoEffect {
 class DemoCubit extends CubitWithEffects<void, DemoEffect> {
   DemoCubit() : super(null);
 
-  void onButtonPress() => useEffect(const ShowBottomSheet());
+  void onButtonPressed() => useEffect(const ShowBottomSheet());
 }
 
 class MyApp extends StatefulWidget {
@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         body: BlocEffectListener<DemoCubit, DemoEffect, void>(
           effector: _demoCubit,
-          listener: (context, effect, _) {
+          listener: (context, effect, state) {
             if (effect is ShowBottomSheet) {
               showBottomSheet<void>(
                 context: context,
@@ -60,8 +60,8 @@ class _MyAppState extends State<MyApp> {
           },
           child: Center(
             child: ElevatedButton(
+              onPressed: _demoCubit.onButtonPressed,
               child: const Icon(Icons.upload),
-              onPressed: () => _demoCubit.onButtonPress(),
             ),
           ),
         ),

@@ -1,3 +1,6 @@
+## 0.1.1
+- Updated documentation, example, readme [README.md]
+ 
 ## 0.1.0
 - updated [README.md]
 
