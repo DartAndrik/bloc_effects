@@ -122,18 +122,5 @@ class _BlocEffectListenerState<B extends Effector<S, E>, E, S>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final effector = widget.effector ?? context.read<B>();
-    if (_effector != effector) {
-      if (_subscription != null) {
-        _unsubscribe();
-        _effector = effector;
-      }
-      _subscribe();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) => widget.child;
 }
