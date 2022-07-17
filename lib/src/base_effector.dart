@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:bloc_effects/src/bloc_with_effects_observer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// An object that must be closed when no longer in use.
@@ -38,27 +40,49 @@ abstract class BaseEffector<Effect>
 mixin Effector<S, E> on BlocBase<S> implements BaseEffector<E> {
   late final _effectController = StreamController<E>.broadcast();
 
+  BlocWithEffectsObserver? get _effectsBlocObserver {
+    final observer = BlocOverrides.current?.blocObserver;
+    return observer is BlocWithEffectsObserver ? observer : null;
+  }
+
   @override
   Stream<E> get effectsStream => _effectController.stream;
 
   @override
   bool get isEffectsClosed => _effectController.isClosed;
 
+  @protected
+  @visibleForTesting
   @override
   void useEffect(E effect) {
-    if (!isEffectsClosed) {
+    if (!isEffectsClosed) {}
+    try {
+      if (isClosed || isEffectsClosed) {
+        throw StateError('Cannot use effects after calling close');
+      }
+
+      // ignore: invalid_use_of_protected_member
+      _effectsBlocObserver?.onEffect(this, effect);
       _effectController.add(effect);
+    } catch (error, stackTrace) {
+      onError(error, stackTrace);
+      rethrow;
     }
   }
 
+  @protected
+  @mustCallSuper
   @override
   Future<void> closeEffects() async {
     await _effectController.close();
   }
 
+  @mustCallSuper
   @override
-  Future<void> close() {
-    closeEffects();
-    return super.close();
+  Future<void> close() async {
+    if (!isEffectsClosed) {
+      await closeEffects();
+    }
+    await super.close();
   }
 }
