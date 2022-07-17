@@ -16,8 +16,8 @@ and the Flutter guide for
 <a href="https://github.com/passsy/dart-lint"><img src="https://img.shields.io/badge/style-lint-40c4ff.svg" alt="style: lint"></a>
 </p>
 
-The abstractions on Cubit and Bloc and Flutter Widget that make it easy to add UI Effects to the BLoC state
-management using [package:bloc](https://pub.dev/packages/bloc).
+The abstractions on Cubit and Bloc and Flutter Widget that make it easy to add UI Effects to the
+BLoC state management using [package:bloc](https://pub.dev/packages/bloc).
 
 ## Usage
 
@@ -97,3 +97,19 @@ class CounterPage extends StatelessWidget {
   }
 }
 ```
+
+And also `BlocWithEffectsObserver` can be useful. It extends `BlocObserver` and add `onEffect`
+callback to base observing features:
+
+### app_bloc_observer.dart
+
+ ```dart
+ class AppBlocObserver extends BlocWithEffectsObserver {
+  @override
+  void onEffect(BlocBase bloc, Object? effect) {
+    super.onEffect(bloc, effect);
+    debugPrint('Used effect: $effect');
+  }
+// Other [BlocObserver] overrides
+}
+ ```
