@@ -40,7 +40,10 @@ abstract class BaseEffector<Effect>
 mixin Effector<S, E> on BlocBase<S> implements BaseEffector<E> {
   late final _effectController = StreamController<E>.broadcast();
 
-  BlocObserver get _blocObserver => Bloc.observer;
+  BlocWithEffectsObserver? get _effectsBlocObserver {
+    final observer = Bloc.observer;
+    return observer is BlocWithEffectsObserver ? observer : null;
+  }
 
   @override
   Stream<E> get effectsStream => _effectController.stream;
@@ -58,12 +61,8 @@ mixin Effector<S, E> on BlocBase<S> implements BaseEffector<E> {
         throw StateError('Cannot use effects after calling close');
       }
 
-      final observer = _blocObserver;
-
-      if (observer is BlocWithEffectsObserver) {
-        // ignore: invalid_use_of_protected_member
-        observer.onEffect(this, effect);
-      }
+      // ignore: invalid_use_of_protected_member
+      _effectsBlocObserver?.onEffect(this, effect);
       _effectController.add(effect);
     } catch (error, stackTrace) {
       onError(error, stackTrace);
