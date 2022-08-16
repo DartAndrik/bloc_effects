@@ -41,7 +41,7 @@ mixin Effector<S, E> on BlocBase<S> implements BaseEffector<E> {
   late final _effectController = StreamController<E>.broadcast();
 
   BlocWithEffectsObserver? get _effectsBlocObserver {
-    final observer = BlocOverrides.current?.blocObserver;
+    final observer = Bloc.observer;
     return observer is BlocWithEffectsObserver ? observer : null;
   }
 
