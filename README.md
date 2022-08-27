@@ -10,12 +10,16 @@ For general information about developing packages, see the Dart guide for
 and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
+<h2 align="center">SingleLiveEvent pattern implementation for Cubit and Bloc</h2>
+
 <p align="center">
 <a href="https://pub.dev/packages/bloc_effects"><img src="https://img.shields.io/pub/v/bloc_effects.svg" alt="Pub"></a>
 <a href="https://codecov.io/gh/DartAndrik/bloc_effects"><img src="https://codecov.io/gh/DartAndrik/bloc_effects/branch/master/graph/badge.svg" alt="codecov"></a>
 <a href="https://github.com/passsy/dart-lint"><img src="https://img.shields.io/badge/style-lint-40c4ff.svg" alt="style: lint"></a>
 </p>
-
+<p align="center">
+<img src="https://github.com/DartAndrik/bloc_effects/blob/add_logo/docs/assets/bloc_effects_logo_white_full.png" height="250" alt="Bloc Effects Package" />
+</p>
 The abstractions on Cubit and Bloc and Flutter Widget that make it easy to add UI Effects to the
 BLoC state management using [package:bloc](https://pub.dev/packages/bloc).
 
