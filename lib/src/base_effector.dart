@@ -25,7 +25,7 @@ abstract class EffectsStreamable<T extends Object?> {
 /// An object that can emit new effects.
 abstract class EffectsUsable<Effect extends Object?> {
   /// Emits a new [effect].
-  void useEffect(Effect effect);
+  void emitEffect(Effect effect);
 }
 
 /// A [EffectsStreamable] that must be closed when no longer in use.
@@ -54,7 +54,7 @@ mixin Effector<S, E> on BlocBase<S> implements BaseEffector<E> {
   @protected
   @visibleForTesting
   @override
-  void useEffect(E effect) {
+  void emitEffect(E effect) {
     if (!isEffectsClosed) {}
     try {
       if (isClosed || isEffectsClosed) {

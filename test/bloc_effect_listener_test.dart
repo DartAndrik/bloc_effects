@@ -18,7 +18,7 @@ class ButtonPressed implements TestEvent {
 class TestCubit extends CubitWithEffects<int, TestEffect> {
   TestCubit({int value = 0}) : super(value);
 
-  void showSnackBar() => useEffect(const ShowSnackBar());
+  void showSnackBar() => emitEffect(const ShowSnackBar());
 
   void increment() {
     emit(state + 1);
@@ -31,7 +31,7 @@ class TestBloc extends BlocWithEffects<TestEvent, int, TestEffect> {
   }
 
   void _onButtonPressed(ButtonPressed event, Emitter<int> emit) =>
-      useEffect(const ShowSnackBar());
+      emitEffect(const ShowSnackBar());
 }
 
 class MyApp extends StatefulWidget {

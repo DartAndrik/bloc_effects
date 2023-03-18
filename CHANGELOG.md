@@ -1,3 +1,7 @@
+## 0.3.0
+- Breaking changes: the [useEffect] method had the same prefix name as hooks and was renamed to [emitEffect].
+- [flutter_bloc] updated to 8.1.2
+
 ## 0.2.1
 - Removed deprecated for Bloc methods.
 
