@@ -46,7 +46,7 @@ class ShowBottomSheet implements UiEffect {
 
   void increment() => emit(state + 1);
 
-  void onButtonPressed() => useEffect(const ShowBottomSheet());
+  void onButtonPressed() => emitEffect(const ShowBottomSheet());
 }
  ```
 

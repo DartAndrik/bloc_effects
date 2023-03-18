@@ -14,7 +14,7 @@ class ShowBottomSheet implements DemoEffect {
 class DemoCubit extends CubitWithEffects<void, DemoEffect> {
   DemoCubit() : super(null);
 
-  void onButtonPressed() => useEffect(const ShowBottomSheet());
+  void onButtonPressed() => emitEffect(const ShowBottomSheet());
 }
 
 class MyApp extends StatefulWidget {

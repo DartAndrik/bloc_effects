@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// {@template cubit}
 /// A [CubitWithEffects] is similar to [Cubit] but
-/// also allows to call method [useEffect] for emitting events on UI.
+/// also allows to call method [emitEffect] for emitting events on UI.
 ///
 /// Every [CubitWithEffects] can be also configured with an initial state
 ///
@@ -13,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 ///   void increment() => emit(state + 1);
 ///
-///   void onButtonPress() => useEffect(const SomeEffect());
+///   void onButtonPress() => emitEffect(const SomeEffect());
 /// }
 /// ```
 ///

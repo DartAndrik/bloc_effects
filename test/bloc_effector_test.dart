@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'bloc_effect_listener_test.dart';
 
 void main() {
-  group('useEffect', () {
+  group('emitEffect', () {
     test('throws StateError if cubit is closed', () {
       var didThrow = false;
       runZonedGuarded(() {
@@ -15,9 +15,9 @@ void main() {
           emitsInOrder(<Matcher>[equals(const ShowSnackBar()), emitsDone]),
         );
         cubit
-          ..useEffect(const ShowSnackBar())
+          ..emitEffect(const ShowSnackBar())
           ..close()
-          ..useEffect(const ShowSnackBar());
+          ..emitEffect(const ShowSnackBar());
       }, (error, _) {
         didThrow = true;
         expect(
