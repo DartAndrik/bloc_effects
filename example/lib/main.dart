@@ -43,9 +43,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: BlocEffectListener<DemoCubit, DemoEffect, void>(
+        body: BlocEffectListener<DemoCubit, DemoEffect>(
           effector: _demoCubit,
-          listener: (context, effect, state) {
+          listener: (context, effect) {
             if (effect is ShowBottomSheet) {
               showBottomSheet<void>(
                 context: context,

@@ -11,13 +11,13 @@ void main() {
       runZonedGuarded(() {
         final cubit = TestCubit();
         expectLater(
-          cubit.effectsStream,
-          emitsInOrder(<Matcher>[equals(const ShowSnackBar()), emitsDone]),
+          cubit.effectsStream.map((event) => event.runtimeType),
+          emitsInOrder(<Matcher>[equals(ShowSnackBar), emitsDone]),
         );
         cubit
-          ..emitEffect(const ShowSnackBar())
+          ..emitEffect(ShowSnackBar(cubit.state))
           ..close()
-          ..emitEffect(const ShowSnackBar());
+          ..emitEffect(ShowSnackBar(cubit.state));
       }, (error, _) {
         didThrow = true;
         expect(

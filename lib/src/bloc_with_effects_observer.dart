@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// of [Bloc] instances.
 abstract class BlocWithEffectsObserver extends BlocObserver {
   /// Called whenever an [effect] is `used` from any [BlocBase] implementation
-  ///  with the given [bloc] and [effect].
+  ///  with the given [effect].
   @protected
   @mustCallSuper
-  void onEffect(BlocBase bloc, Object? effect) {}
+  void onEffect<E>(E effect) {}
 }

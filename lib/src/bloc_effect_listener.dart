@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:bloc_effects/src/base_effector.dart';
+import 'package:bloc_effects/src/effects_mixin.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Signature for the `listener` function which takes the `BuildContext` along
-/// with the `effect` and `state`. It is responsible for executing in response
-/// to new `effect` emitted. The `state` is the snapshot of state
-/// on the moment of `effect` emitting.
-typedef EffectWidgetListener<Effect, State> = void Function(
+/// with the `effect`. It is responsible for executing in response
+/// to new `effect` emitted. If the `state` snapshot is necessary
+/// on the moment of `effect` emitting, you can provide it using the properties
+/// of the effect class.
+typedef EffectWidgetListener<Effect> = void Function(
   BuildContext,
   Effect,
-  State,
 );
 
 /// {@template bloc_effect_listener}
@@ -27,9 +27,9 @@ typedef EffectWidgetListener<Effect, State> = void Function(
 /// the current `BuildContext`.
 ///
 /// ```dart
-/// BlocEffectListener<BlocA, BlocEffect, BlocAState>(
-///   listener: (context, effect, state) {
-///      // do stuff here based on BlocEffect and BlocA's state snapshot
+/// BlocEffectListener<BlocA, BlocEffect>(
+///   listener: (context, effect) {
+///      // do stuff here based on BlocEffect with the bloc state snapshot stored in it(if it's necessary)
 ///      // on the moment of effect emitting
 ///   },
 ///   child: const SizedBox(),
@@ -39,18 +39,17 @@ typedef EffectWidgetListener<Effect, State> = void Function(
 /// otherwise not accessible via [BlocProvider] and the current `BuildContext`.
 ///
 /// ```dart
-/// BlocEffectListener<BlocA, BlocEffect, BlocAState>(
+/// BlocEffectListener<BlocA, BlocEffect>(
 ///   effector: blocA,
-///   listener: (context, effect, state) {
-///     // do stuff here based on BlocEffect and BlocA's state snapshot
+///   listener: (context, effect) {
+///     // do stuff here based on BlocEffect with the bloc state snapshot stored in it(if it's necessary)
 ///     // on the moment of effect emitting
 ///   },
 ///   child: const SizedBox(),
 /// )
 /// ```
 /// {@endtemplate}
-class BlocEffectListener<B extends Effector<S, E>, E, S>
-    extends StatefulWidget {
+class BlocEffectListener<B extends Effects<E>, E> extends StatefulWidget {
   /// {@macro bloc_effect_listener}
   const BlocEffectListener({
     required this.listener,
@@ -66,25 +65,25 @@ class BlocEffectListener<B extends Effector<S, E>, E, S>
   /// The [EffectWidgetListener] which will be called on every `effect` emmit.
   /// This [listener] should be used for any code which needs to execute
   /// in response to a `effect` emit.
-  final EffectWidgetListener<E, S> listener;
+  final EffectWidgetListener<E> listener;
 
   /// The widget which will be rendered as a descendant of the
   /// [BlocEffectListener].
   final Widget child;
 
   @override
-  State<BlocEffectListener<B, E, S>> createState() =>
-      _BlocEffectListenerState<B, E, S>();
+  State<BlocEffectListener<B, E>> createState() =>
+      _BlocEffectListenerState<B, E>();
 }
 
-class _BlocEffectListenerState<B extends Effector<S, E>, E, S>
-    extends State<BlocEffectListener<B, E, S>> {
+class _BlocEffectListenerState<B extends Effects<E>, E>
+    extends State<BlocEffectListener<B, E>> {
   StreamSubscription<E>? _subscription;
   late B _effector;
 
   void _subscribe() {
     _subscription = _effector.effectsStream.listen(
-      (effect) => widget.listener(context, effect, _effector.state),
+      (effect) => widget.listener(context, effect),
     );
   }
 
@@ -108,7 +107,7 @@ class _BlocEffectListenerState<B extends Effector<S, E>, E, S>
   }
 
   @override
-  void didUpdateWidget(BlocEffectListener<B, E, S> oldWidget) {
+  void didUpdateWidget(BlocEffectListener<B, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldEffector = oldWidget.effector ?? context.read<B>();
     final currentEffector = widget.effector ?? oldEffector;

@@ -1,4 +1,4 @@
-import 'package:bloc_effects/src/base_effector.dart';
+import 'package:bloc_effects/src/effects_mixin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// {@template cubit}
@@ -19,8 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// {@endtemplate}
 abstract class CubitWithEffects<State, Effect> extends Cubit<State>
-    with Effector<State, Effect>
-    implements BaseEffector<Effect> {
+    with Effects<Effect> {
   /// {@macro cubit}
   CubitWithEffects(super.initialState);
 }
