@@ -25,7 +25,7 @@ BLoC state management using [package:bloc](https://pub.dev/packages/bloc).
 
 ## Usage
 
-Lets take a look at how to use `CubitWithEffects` to dispatch effects from `CounterCubit` to
+Lets take a look at how to use mixin `Effects` or class `CubitWithEffects` to dispatch effects from `CounterCubit` to
 a `CounterPage` and react on them with `BlocEffectListener`.
 
 ### ui_effect.dart
@@ -34,11 +34,25 @@ a `CounterPage` and react on them with `BlocEffectListener`.
 abstract class UiEffect {}
 
 class ShowBottomSheet implements UiEffect {
-  const ShowBottomSheet();
+  const ShowBottomSheet({required this.counterValue});
+  
+  final int counterValue;
 }
  ```
 
 ### counter_cubit.dart
+
+ ```dart
+ class CounterCubit extends Cubit<int> with Effects<UiEffect> {
+  CounterCubit() : super(0);
+
+  void increment() => emit(state + 1);
+
+  void onButtonPressed() => emitEffect(ShowBottomSheet(counterValue: state));
+}
+ ```
+
+or the same with the class extension: 
 
  ```dart
  class CounterCubit extends CubitWithEffects<int, UiEffect> {
@@ -46,7 +60,7 @@ class ShowBottomSheet implements UiEffect {
 
   void increment() => emit(state + 1);
 
-  void onButtonPressed() => emitEffect(const ShowBottomSheet());
+  void onButtonPressed() => emitEffect(ShowBottomSheet(counterValue: state));
 }
  ```
 
@@ -76,8 +90,8 @@ class CounterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Counter')),
-      body: BlocEffectListener<CounterCubit, SomeEffect, int>(
-        listener: (context, effect, state) {
+      body: BlocEffectListener<CounterCubit, SomeEffect>(
+        listener: (context, effect) {
           if (effect is ShowBottomSheet) {
             showBottomSheet<void>(
               context: context,
@@ -110,8 +124,8 @@ callback to base observing features:
  ```dart
  class AppBlocObserver extends BlocWithEffectsObserver {
   @override
-  void onEffect(BlocBase bloc, Object? effect) {
-    super.onEffect(bloc, effect);
+  void onEffect(Object effect) {
+    super.onEffect(effect);
     debugPrint('Used effect: $effect');
   }
 // Other [BlocObserver] overrides

@@ -1,5 +1,6 @@
 import 'package:bloc_effects/bloc_effects.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +12,7 @@ class ShowBottomSheet implements DemoEffect {
   const ShowBottomSheet();
 }
 
-class DemoCubit extends CubitWithEffects<void, DemoEffect> {
+class DemoCubit extends Cubit<void> with Effects<DemoEffect> {
   DemoCubit() : super(null);
 
   void onButtonPressed() => emitEffect(const ShowBottomSheet());
