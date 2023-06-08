@@ -1,3 +1,5 @@
+## 1.0.1
+- Fix example to use mixin
 ## 1.0.0
 - Breaking changes: the [Effector] mixin renamed to [Effects] mixin and it becomes public
 and alternative way use effects in blocs and cubits to extends them from [BlocWithEffects] or [CubitWithEffects] classes.
