@@ -90,7 +90,7 @@ class CounterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Counter')),
-      body: BlocEffectListener<CounterCubit, SomeEffect>(
+      body: BlocEffectListener<CounterCubit, UiEffect>(
         listener: (context, effect) {
           if (effect is ShowBottomSheet) {
             showBottomSheet<void>(
