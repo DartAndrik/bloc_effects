@@ -102,7 +102,6 @@ class _BlocEffectListenerState<B extends Effects<E>, E>
   @override
   void dispose() {
     _unsubscribe();
-    _effector.close();
     super.dispose();
   }
 
