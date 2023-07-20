@@ -1,3 +1,6 @@
+## 1.0.3
+- Fixed unnecessary effector disposing in [BlocEffectListener]
+
 ## 1.0.2
 - Fix readme
 
