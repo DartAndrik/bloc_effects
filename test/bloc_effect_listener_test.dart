@@ -37,7 +37,10 @@ class TestBloc extends BlocWithEffects<TestEvent, int, TestEffect> {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key, this.onListenerCalled}) : super(key: key);
+  const MyApp({
+    this.onListenerCalled,
+    super.key,
+  });
 
   final EffectWidgetListener<TestEffect>? onListenerCalled;
 
@@ -182,12 +185,14 @@ void main() {
       final resetCubitFinder = find.byKey(
         const Key('cubit_listener_reset_button'),
       );
-      await tester.pumpWidget(MyApp(
-        onListenerCalled: (_, effect) {
-          listenerCallCount++;
-          latestEffect = effect;
-        },
-      ));
+      await tester.pumpWidget(
+        MyApp(
+          onListenerCalled: (_, effect) {
+            listenerCallCount++;
+            latestEffect = effect;
+          },
+        ),
+      );
 
       await tester.tap(showSnackBarFinder);
       await tester.pump();
@@ -218,12 +223,14 @@ void main() {
       final noopCubitFinder = find.byKey(
         const Key('cubit_listener_noop_button'),
       );
-      await tester.pumpWidget(MyApp(
-        onListenerCalled: (context, effect) {
-          listenerCallCount++;
-          latestEffect = effect;
-        },
-      ));
+      await tester.pumpWidget(
+        MyApp(
+          onListenerCalled: (context, effect) {
+            listenerCallCount++;
+            latestEffect = effect;
+          },
+        ),
+      );
 
       await tester.tap(showSnackBarFinder);
       await tester.pump();

@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
           effector: _demoCubit,
           listener: (context, effect) {
             if (effect is ShowBottomSheet) {
-              showBottomSheet<void>(
+              showBottomSheet(
                 context: context,
                 builder: (c) => Material(
                   child: Container(

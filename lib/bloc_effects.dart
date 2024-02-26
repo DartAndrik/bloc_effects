@@ -1,5 +1,3 @@
-library bloc_effects;
-
 export '/src/bloc_effect_listener.dart';
 export '/src/bloc_with_effects.dart';
 export '/src/bloc_with_effects_observer.dart';

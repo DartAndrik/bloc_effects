@@ -1,3 +1,7 @@
+## 1.0.4
+- [flutter_bloc] updated to 8.1.4
+- Updated lint rules
+
 ## 1.0.3
 - Fixed unnecessary effector disposing in [BlocEffectListener]
 
