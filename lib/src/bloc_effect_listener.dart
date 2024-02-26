@@ -55,8 +55,8 @@ class BlocEffectListener<B extends Effects<E>, E> extends StatefulWidget {
     required this.listener,
     required this.child,
     this.effector,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   /// The [effector] whose `effects` will be listened to.
   /// Whenever the [effector] emit new `effect`, [listener] will be invoked.
