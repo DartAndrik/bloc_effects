@@ -1,3 +1,7 @@
+## 1.0.5
+- [flutter_bloc] updated to 9.0.0
+- Bumped lint rules
+
 ## 1.0.4
 - [flutter_bloc] updated to 8.1.4
 - Updated lint rules

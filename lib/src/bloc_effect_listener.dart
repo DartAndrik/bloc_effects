@@ -82,8 +82,16 @@ class _BlocEffectListenerState<B extends Effects<E>, E>
   late B _effector;
 
   void _subscribe() {
+    final context = this.context;
+
     _subscription = _effector.effectsStream.listen(
-      (effect) => widget.listener(context, effect),
+      (effect) {
+        if (context.mounted) {
+          widget.listener(context, effect);
+        } else {
+          _unsubscribe();
+        }
+      },
     );
   }
 
