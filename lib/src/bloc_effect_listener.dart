@@ -88,8 +88,6 @@ class _BlocEffectListenerState<B extends Effects<E>, E>
       (effect) {
         if (context.mounted) {
           widget.listener(context, effect);
-        } else {
-          _unsubscribe();
         }
       },
     );
