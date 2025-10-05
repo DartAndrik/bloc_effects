@@ -1,4 +1,4 @@
-import 'dart:async';
+part of 'effects_mixin.dart';
 
 /// An object that must be closed when no longer in use.
 abstract class EffectsClosable {

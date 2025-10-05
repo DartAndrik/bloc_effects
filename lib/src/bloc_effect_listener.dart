@@ -10,8 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// on the moment of `effect` emitting, you can provide it using the properties
 /// of the effect class.
 typedef EffectWidgetListener<Effect> = void Function(
-  BuildContext,
-  Effect,
+  BuildContext context,
+  Effect effect,
 );
 
 /// {@template bloc_effect_listener}

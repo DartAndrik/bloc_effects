@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:bloc_effects/bloc_effects.dart';
-import 'package:bloc_effects/src/base_effector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+part 'base_effector.dart';
 
 /// Mixin [Effects] provides implementation for [BaseEffector]
 mixin Effects<E> on Closable implements BaseEffector<E> {
