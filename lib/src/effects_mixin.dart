@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'base_effector.dart';
 
 /// Mixin [Effects] provides implementation for [BaseEffector]
-mixin Effects<E> on Closable implements BaseEffector<E> {
+mixin Effects<State, E> on BlocBase<State> implements BaseEffector<E> {
   late final _effectController = StreamController<E>.broadcast();
 
   BlocWithEffectsObserver? get _effectsBlocObserver {
@@ -32,7 +32,7 @@ mixin Effects<E> on Closable implements BaseEffector<E> {
     }
 
     // ignore: invalid_use_of_protected_member
-    _effectsBlocObserver?.onEffect(effect);
+    _effectsBlocObserver?.onEffect(this, effect);
     _effectController.add(effect);
   }
 
