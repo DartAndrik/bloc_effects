@@ -49,7 +49,7 @@ typedef EffectWidgetListener<Effect> = void Function(
 /// )
 /// ```
 /// {@endtemplate}
-class BlocEffectListener<B extends Effects<E>, E> extends StatefulWidget {
+class BlocEffectListener<B extends Effects<S, E>, S, E> extends StatefulWidget {
   /// {@macro bloc_effect_listener}
   const BlocEffectListener({
     required this.listener,
@@ -72,12 +72,12 @@ class BlocEffectListener<B extends Effects<E>, E> extends StatefulWidget {
   final Widget child;
 
   @override
-  State<BlocEffectListener<B, E>> createState() =>
-      _BlocEffectListenerState<B, E>();
+  State<BlocEffectListener<B, S, E>> createState() =>
+      _BlocEffectListenerState<B, S, E>();
 }
 
-class _BlocEffectListenerState<B extends Effects<E>, E>
-    extends State<BlocEffectListener<B, E>> {
+class _BlocEffectListenerState<B extends Effects<S, E>, S, E>
+    extends State<BlocEffectListener<B, S, E>> {
   StreamSubscription<E>? _subscription;
   late B _effector;
 
@@ -112,7 +112,7 @@ class _BlocEffectListenerState<B extends Effects<E>, E>
   }
 
   @override
-  void didUpdateWidget(BlocEffectListener<B, E> oldWidget) {
+  void didUpdateWidget(BlocEffectListener<B, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldEffector = oldWidget.effector ?? context.read<B>();
     final currentEffector = widget.effector ?? oldEffector;
