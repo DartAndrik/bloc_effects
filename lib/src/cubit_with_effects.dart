@@ -19,7 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// {@endtemplate}
 abstract class CubitWithEffects<State, Effect> extends Cubit<State>
-    with Effects<Effect> {
+    with Effects<State, Effect> {
   /// {@macro cubit}
   CubitWithEffects(super.initialState);
 }
