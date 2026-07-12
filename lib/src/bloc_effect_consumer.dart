@@ -32,7 +32,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// An optional [buildWhen] can be implemented for more granular control over
 /// how often [BlocEffectConsumer] rebuilds.
 /// [buildWhen] should only be used for performance optimizations as it
-/// provides no security about the state passed to the [builder] function.
+/// provides no guarantee about the state passed to the [builder] function.
 /// [buildWhen] will be invoked on each [bloc] `state` change.
 /// [buildWhen] takes the previous `state` and current `state` and must
 /// return a [bool] which determines whether or not the [builder] function will
@@ -56,7 +56,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// )
 /// ```
 /// {@endtemplate}
-class BlocEffectConsumer<B extends Effects<S, E>, S, E>
+class BlocEffectConsumer<B extends BlocEffectsSource<S, E>, S, E>
     extends StatelessWidget {
   /// {@macro bloc_effect_consumer}
   const BlocEffectConsumer({
@@ -89,7 +89,7 @@ class BlocEffectConsumer<B extends Effects<S, E>, S, E>
 
   @override
   Widget build(BuildContext context) {
-    return BlocEffectListener<B, S, E>(
+    return BlocEffectListener<B, E>(
       listener: listener,
       effector: bloc,
       child: BlocBuilder<B, S>(

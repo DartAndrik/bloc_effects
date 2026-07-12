@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: BlocEffectListener<TestCubit, int, TestEffect>(
+        body: BlocEffectListener<TestCubit, TestEffect>(
           effector: _testCubit,
           listener: (context, effect) {
             widget.onListenerCalled?.call(context, effect);
@@ -101,13 +101,37 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+class ProviderListenerHarness extends StatelessWidget {
+  const ProviderListenerHarness({
+    required this.cubit,
+    required this.states,
+    super.key,
+  });
+
+  final TestCubit cubit;
+  final List<int> states;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<TestCubit>.value(
+      value: cubit,
+      child: BlocEffectListener<TestCubit, TestEffect>(
+        listener: (_, effect) {
+          if (effect is ShowSnackBar) states.add(effect.stateValue);
+        },
+        child: const SizedBox(),
+      ),
+    );
+  }
+}
+
 void main() {
   group('BlocEffectListener', () {
     testWidgets('renders child properly', (tester) async {
       const targetKey = Key('cubit_listener_container');
       final testCubit = TestCubit();
       await tester.pumpWidget(
-        BlocEffectListener<TestCubit, int, TestEffect>(
+        BlocEffectListener<TestCubit, TestEffect>(
           effector: testCubit,
           listener: (_, __) {},
           child: const SizedBox(key: targetKey),
@@ -122,7 +146,7 @@ void main() {
       final effects = <TestEffect>[];
       const expectedEffects = [ShowSnackBar];
       await tester.pumpWidget(
-        BlocEffectListener<TestCubit, int, TestEffect>(
+        BlocEffectListener<TestCubit, TestEffect>(
           effector: testCubit,
           listener: (_, effect) {
             effects.add(effect);
@@ -141,7 +165,7 @@ void main() {
       final effects = <TestEffect>[];
       const expectedEffects = [ShowSnackBar];
       await tester.pumpWidget(
-        BlocEffectListener<TestBloc, int, TestEffect>(
+        BlocEffectListener<TestBloc, TestEffect>(
           effector: testBloc,
           listener: (_, effect) {
             effects.add(effect);
@@ -159,7 +183,7 @@ void main() {
       final effects = <TestEffect>[];
       const expectedEffects = [ShowSnackBar, ShowSnackBar];
       await tester.pumpWidget(
-        BlocEffectListener<TestCubit, int, TestEffect>(
+        BlocEffectListener<TestCubit, TestEffect>(
           effector: testCubit,
           listener: (_, effect) {
             effects.add(effect);
@@ -255,7 +279,7 @@ void main() {
       final effects = <TestEffect>[];
       final testCubit = TestCubit();
       await tester.pumpWidget(
-        BlocEffectListener<TestCubit, int, TestEffect>(
+        BlocEffectListener<TestCubit, TestEffect>(
           effector: testCubit,
           listener: (_, effect) {
             effects.add(effect);
@@ -306,7 +330,7 @@ void main() {
       await tester.pumpWidget(
         BlocProvider.value(
           value: testCubit,
-          child: BlocEffectListener<TestCubit, int, TestEffect>(
+          child: BlocEffectListener<TestCubit, TestEffect>(
             listener: (context, effect) {
               listenCallCount++;
               latestEffect = effect;
@@ -336,7 +360,7 @@ void main() {
       await tester.pumpWidget(
         BlocProvider.value(
           value: firstTestCubit,
-          child: BlocEffectListener<TestCubit, int, TestEffect>(
+          child: BlocEffectListener<TestCubit, TestEffect>(
             effector: firstTestCubit,
             listener: (_, effect) {
               if (effect is ShowSnackBar) {
@@ -353,7 +377,7 @@ void main() {
       await tester.pumpWidget(
         BlocProvider.value(
           value: secondTestCubit,
-          child: BlocEffectListener<TestCubit, int, TestEffect>(
+          child: BlocEffectListener<TestCubit, TestEffect>(
             effector: secondTestCubit,
             listener: (_, effect) {
               if (effect is ShowSnackBar) {
@@ -371,6 +395,30 @@ void main() {
       await tester.pump();
 
       expect(states, expectedStates);
+    });
+
+    testWidgets('follows a replacement context-provided cubit', (tester) async {
+      final firstCubit = TestCubit(value: 1);
+      final secondCubit = TestCubit(value: 100);
+      final states = <int>[];
+      addTearDown(firstCubit.close);
+      addTearDown(secondCubit.close);
+
+      await tester.pumpWidget(
+        ProviderListenerHarness(cubit: firstCubit, states: states),
+      );
+      firstCubit.showSnackBar();
+      await tester.pump();
+
+      await tester.pumpWidget(
+        ProviderListenerHarness(cubit: secondCubit, states: states),
+      );
+      secondCubit.showSnackBar();
+      await tester.pump();
+      firstCubit.showSnackBar();
+      await tester.pump();
+
+      expect(states, <int>[1, 100]);
     });
   });
 }

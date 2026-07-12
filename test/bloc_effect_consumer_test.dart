@@ -1,5 +1,4 @@
 import 'package:bloc_effects/bloc_effects.dart';
-import 'package:bloc_effects/src/bloc_effect_consumer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,8 +32,35 @@ class TestBloc extends BlocWithEffects<TestEvent, int, TestEffect> {
   void _onIncrement(_, Emitter<int> emit) => emit(state + 1);
 }
 
+class ProviderConsumerHarness extends StatelessWidget {
+  const ProviderConsumerHarness({
+    required this.cubit,
+    required this.effectStates,
+    super.key,
+  });
+
+  final TestCubit cubit;
+  final List<int> effectStates;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<TestCubit>.value(
+      value: cubit,
+      child: BlocEffectConsumer<TestCubit, int, TestEffect>(
+        listener: (_, effect) {
+          if (effect is ShowSnackBar) effectStates.add(effect.stateValue);
+        },
+        builder: (_, state) => Directionality(
+          textDirection: TextDirection.ltr,
+          child: Text('$state'),
+        ),
+      ),
+    );
+  }
+}
+
 void main() {
-  group('BlocEffectListener', () {
+  group('BlocEffectConsumer', () {
     testWidgets('renders child properly', (tester) async {
       const targetKey = Key('cubit_listener_container');
       final testCubit = TestCubit();
@@ -131,6 +157,36 @@ void main() {
       await tester.pumpAndSettle();
       expect(effects.map((e) => e.runtimeType), expectedEffects);
       expect(find.text('2'), findsOneWidget);
+    });
+
+    testWidgets('keeps builder and listener on the same replacement cubit',
+        (tester) async {
+      final firstCubit = TestCubit(value: 1);
+      final secondCubit = TestCubit(value: 100);
+      final effectStates = <int>[];
+      addTearDown(firstCubit.close);
+      addTearDown(secondCubit.close);
+
+      await tester.pumpWidget(
+        ProviderConsumerHarness(
+          cubit: firstCubit,
+          effectStates: effectStates,
+        ),
+      );
+      await tester.pumpWidget(
+        ProviderConsumerHarness(
+          cubit: secondCubit,
+          effectStates: effectStates,
+        ),
+      );
+      expect(find.text('100'), findsOneWidget);
+
+      secondCubit.showSnackBar();
+      await tester.pump();
+      firstCubit.showSnackBar();
+      await tester.pump();
+
+      expect(effectStates, <int>[100]);
     });
   });
 }

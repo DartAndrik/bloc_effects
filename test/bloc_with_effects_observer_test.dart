@@ -1,4 +1,4 @@
-import 'package:bloc_effects/src/bloc_with_effects_observer.dart';
+import 'package:bloc_effects/bloc_effects.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,10 +10,22 @@ class TestBlocObserver extends BlocWithEffectsObserver {
   final Map<BlocBase<dynamic>, List<dynamic>> observedEffects;
 
   @override
-  void onEffect<E>(BlocBase<dynamic> bloc, E effect) {
+  void onBlocEffect(BlocBase<dynamic> bloc, Object? effect) {
     observedEffects.putIfAbsent(bloc, () => []);
     observedEffects[bloc]!.add(effect);
-    super.onEffect(bloc, effect);
+    super.onBlocEffect(bloc, effect);
+  }
+}
+
+class LegacyBlocObserver extends BlocWithEffectsObserver {
+  LegacyBlocObserver(this.observedEffects);
+
+  final List<Object?> observedEffects;
+
+  @override
+  void onEffect<E>(E effect) {
+    observedEffects.add(effect);
+    super.onEffect<E>(effect);
   }
 }
 
@@ -21,10 +33,13 @@ void main() {
   group('BlocWithEffectsObserver', () {
     group('onEffect', () {
       test('Emitted effects are observed correctly', () async {
-        final bloc = TestBloc();
+        final originalObserver = Bloc.observer;
         final observedEffects = <BlocBase<dynamic>, List<dynamic>>{};
         final testBlocObserver = TestBlocObserver(observedEffects);
         Bloc.observer = testBlocObserver;
+        addTearDown(() => Bloc.observer = originalObserver);
+        final bloc = TestBloc();
+        addTearDown(bloc.close);
 
         expect(
           observedEffects,
@@ -44,6 +59,19 @@ void main() {
           },
           reason: 'ButtonPressed event, should trigger a ShowSnackBar effect',
         );
+      });
+
+      test('legacy onEffect overrides continue to receive effects', () {
+        final originalObserver = Bloc.observer;
+        final observedEffects = <Object?>[];
+        Bloc.observer = LegacyBlocObserver(observedEffects);
+        addTearDown(() => Bloc.observer = originalObserver);
+        final cubit = TestCubit();
+        addTearDown(cubit.close);
+
+        cubit.showSnackBar();
+
+        expect(observedEffects, <Object?>[isA<ShowSnackBar>()]);
       });
     });
   });

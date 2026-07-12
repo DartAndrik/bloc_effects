@@ -12,7 +12,7 @@ class ShowBottomSheet implements DemoEffect {
   const ShowBottomSheet();
 }
 
-class DemoCubit extends Cubit<void> with Effects<void, DemoEffect> {
+class DemoCubit extends Cubit<void> with Effects<DemoEffect> {
   DemoCubit() : super(null);
 
   void onButtonPressed() => emitEffect(const ShowBottomSheet());
@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: BlocEffectListener<DemoCubit, void, DemoEffect>(
+        body: BlocEffectListener<DemoCubit, DemoEffect>(
           effector: _demoCubit,
           listener: (context, effect) {
             if (effect is ShowBottomSheet) {
