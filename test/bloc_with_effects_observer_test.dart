@@ -29,6 +29,20 @@ class LegacyBlocObserver extends BlocWithEffectsObserver {
   }
 }
 
+class TestClosable implements Closable {
+  bool _isClosed = false;
+
+  @override
+  bool get isClosed => _isClosed;
+
+  @override
+  Future<void> close() async => _isClosed = true;
+}
+
+class StandaloneEffects extends TestClosable with Effects<String> {
+  void emit(String effect) => emitEffect(effect);
+}
+
 void main() {
   group('BlocWithEffectsObserver', () {
     group('onEffect', () {
@@ -72,6 +86,19 @@ void main() {
         cubit.showSnackBar();
 
         expect(observedEffects, <Object?>[isA<ShowSnackBar>()]);
+      });
+
+      test('observes effects emitted outside a BlocBase', () {
+        final originalObserver = Bloc.observer;
+        final observedEffects = <Object?>[];
+        Bloc.observer = LegacyBlocObserver(observedEffects);
+        addTearDown(() => Bloc.observer = originalObserver);
+        final effects = StandaloneEffects();
+        addTearDown(effects.close);
+
+        effects.emit('standalone effect');
+
+        expect(observedEffects, <Object?>['standalone effect']);
       });
     });
   });

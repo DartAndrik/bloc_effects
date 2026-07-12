@@ -1,10 +1,23 @@
 name: Flutter verify
-on: [pull_request]
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
@@ -17,10 +30,29 @@ jobs:
       - name: Run tests
         run: flutter test --no-pub --coverage --test-randomize-ordering-seed random
       - name: Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
-        with:
-          path: coverage/lcov.info
+        shell: bash
+        run: |
+          awk -F: -v min=100 '
+            $1 == "LF" { total += $2 }
+            $1 == "LH" { covered += $2 }
+            END {
+              if (total == 0) {
+                print "No coverage data found"
+                exit 1
+              }
+
+              coverage = covered * 100 / total
+              printf "Coverage: %d/%d (%.2f%%), required: %.2f%%\n", \
+                covered, total, coverage, min
+
+              if (coverage + 0.000001 < min) {
+                exit 1
+              }
+            }
+          ' coverage/lcov.info
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v7
         with:
+          files: coverage/lcov.info
+          fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
