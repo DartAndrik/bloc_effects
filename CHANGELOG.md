@@ -1,4 +1,4 @@
-## Unreleased
+## 2.1.0
 - Thanks to TheManuz for proposing source-aware effect observation and
   contributing the initial implementations of `onBlocEffect` and
   `BlocEffectConsumer`.
