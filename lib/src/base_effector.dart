@@ -18,6 +18,13 @@ abstract class EffectsStreamable<T extends Object?> {
   Stream<T> get effectsStream;
 }
 
+/// A source that exposes both a current [state] and transient [effectsStream].
+///
+/// This combined contract is intended for widgets which consume both state and
+/// effects, such as `BlocEffectConsumer`.
+abstract class BlocEffectsSource<State, Effect>
+    implements StateStreamable<State>, EffectsStreamable<Effect> {}
+
 /// An object that can emit new effects.
 abstract class EffectsUsable<Effect extends Object?> {
   /// Emits a new [effect].

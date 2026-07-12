@@ -49,7 +49,8 @@ typedef EffectWidgetListener<Effect> = void Function(
 /// )
 /// ```
 /// {@endtemplate}
-class BlocEffectListener<B extends Effects<E>, E> extends StatefulWidget {
+class BlocEffectListener<B extends EffectsStreamable<E>, E>
+    extends StatefulWidget {
   /// {@macro bloc_effect_listener}
   const BlocEffectListener({
     required this.listener,
@@ -76,21 +77,23 @@ class BlocEffectListener<B extends Effects<E>, E> extends StatefulWidget {
       _BlocEffectListenerState<B, E>();
 }
 
-class _BlocEffectListenerState<B extends Effects<E>, E>
+class _BlocEffectListenerState<B extends EffectsStreamable<E>, E>
     extends State<BlocEffectListener<B, E>> {
   StreamSubscription<E>? _subscription;
   late B _effector;
 
   void _subscribe() {
-    final context = this.context;
+    _subscription = _effector.effectsStream.listen((effect) {
+      if (!mounted) return;
+      widget.listener(context, effect);
+    });
+  }
 
-    _subscription = _effector.effectsStream.listen(
-      (effect) {
-        if (context.mounted) {
-          widget.listener(context, effect);
-        }
-      },
-    );
+  void _replaceEffector(B nextEffector) {
+    if (identical(_effector, nextEffector)) return;
+    _unsubscribe();
+    _effector = nextEffector;
+    _subscribe();
   }
 
   void _unsubscribe() {
@@ -114,17 +117,22 @@ class _BlocEffectListenerState<B extends Effects<E>, E>
   @override
   void didUpdateWidget(BlocEffectListener<B, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldEffector = oldWidget.effector ?? context.read<B>();
-    final currentEffector = widget.effector ?? oldEffector;
-    if (oldEffector != currentEffector) {
-      if (_subscription != null) {
-        _unsubscribe();
-        _effector = currentEffector;
-      }
-      _subscribe();
-    }
+    _replaceEffector(widget.effector ?? context.read<B>());
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _replaceEffector(widget.effector ?? context.read<B>());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.effector == null) {
+      context.select<B, bool>(
+        (candidate) => identical(candidate, _effector),
+      );
+    }
+    return widget.child;
+  }
 }

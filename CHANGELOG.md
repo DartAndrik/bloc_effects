@@ -1,3 +1,13 @@
+## Unreleased
+- Thanks to TheManuz for proposing source-aware effect observation and
+  contributing the initial implementations of `onBlocEffect` and
+  `BlocEffectConsumer`.
+- Added the source-aware `BlocWithEffectsObserver.onBlocEffect` callback while
+  preserving the existing `onEffect` callback.
+- Added `BlocEffectConsumer`.
+- Fixed context-provided effectors not updating when `BlocProvider` changes.
+- Fixed effects closing before in-flight Bloc handlers complete.
+
 ## 2.0.1
 - base_effector as a part of effector_mixin
 - quality of life(thanks to klaas-videc): added variables `context` and `effect` to [EffectWidgetListener] typedef 

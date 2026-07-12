@@ -105,9 +105,10 @@ class CounterPage extends StatelessWidget {
             );
           }
         },
-        child: const Sizedbox(),
+        child: const SizedBox(),
       ),
       floatingActionButton: FloatingActionButton(
+        tooltip: 'Show effect',
         child: const Icon(Icons.upload),
         onPressed: () => context.read<CounterCubit>().onButtonPressed(),
       ),
@@ -122,12 +123,35 @@ callback to base observing features:
 ### app_bloc_observer.dart
 
  ```dart
- class AppBlocObserver extends BlocWithEffectsObserver {
+class AppBlocObserver extends BlocWithEffectsObserver {
+  const AppBlocObserver();
+
   @override
-  void onEffect(Object effect) {
-    super.onEffect(effect);
-    debugPrint('Used effect: $effect');
+  void onBlocEffect(BlocBase<dynamic> bloc, Object? effect) {
+    super.onBlocEffect(bloc, effect);
+    debugPrint('${bloc.runtimeType} emitted $effect');
   }
-// Other [BlocObserver] overrides
+
+  // Other BlocObserver overrides.
 }
- ```
+```
+
+Install the observer before creating any blocs or cubits:
+
+```dart
+void main() {
+  Bloc.observer = const AppBlocObserver();
+  runApp(const CounterApp());
+}
+```
+
+`BlocEffectConsumer` combines `BlocBuilder` and `BlocEffectListener` when the
+same bloc is used for both state-driven UI and transient effects.
+`CubitWithEffects` and `BlocWithEffects` implement its combined contract. A
+class using the `Effects` mixin directly can opt in by also implementing
+`BlocEffectsSource<State, Effect>`.
+
+Effects are transient, non-buffered broadcast events. Every active listener
+receives each emission once. Emissions without active listeners are discarded,
+and new listeners do not receive past effects. Use one route-scoped listener
+for exclusive UI actions such as navigation and dialogs.

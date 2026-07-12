@@ -101,6 +101,30 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+class ProviderListenerHarness extends StatelessWidget {
+  const ProviderListenerHarness({
+    required this.cubit,
+    required this.states,
+    super.key,
+  });
+
+  final TestCubit cubit;
+  final List<int> states;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<TestCubit>.value(
+      value: cubit,
+      child: BlocEffectListener<TestCubit, TestEffect>(
+        listener: (_, effect) {
+          if (effect is ShowSnackBar) states.add(effect.stateValue);
+        },
+        child: const SizedBox(),
+      ),
+    );
+  }
+}
+
 void main() {
   group('BlocEffectListener', () {
     testWidgets('renders child properly', (tester) async {
@@ -371,6 +395,30 @@ void main() {
       await tester.pump();
 
       expect(states, expectedStates);
+    });
+
+    testWidgets('follows a replacement context-provided cubit', (tester) async {
+      final firstCubit = TestCubit(value: 1);
+      final secondCubit = TestCubit(value: 100);
+      final states = <int>[];
+      addTearDown(firstCubit.close);
+      addTearDown(secondCubit.close);
+
+      await tester.pumpWidget(
+        ProviderListenerHarness(cubit: firstCubit, states: states),
+      );
+      firstCubit.showSnackBar();
+      await tester.pump();
+
+      await tester.pumpWidget(
+        ProviderListenerHarness(cubit: secondCubit, states: states),
+      );
+      secondCubit.showSnackBar();
+      await tester.pump();
+      firstCubit.showSnackBar();
+      await tester.pump();
+
+      expect(states, <int>[1, 100]);
     });
   });
 }
